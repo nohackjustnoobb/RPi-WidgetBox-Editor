@@ -1,0 +1,21 @@
+{
+  "name": "rpi-widgetbox-editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mdi/js": "^7.4.47",
+    "preact": "^10.25.4"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.10.1",
+    "sass": "^1.85.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.1.0"
+  }
+}
