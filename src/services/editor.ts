@@ -1,44 +1,4 @@
-interface Message {
-  type: string;
-  data?: any;
-}
-
-class WebSocketClient {
-  private socket: WebSocket | null = null;
-
-  constructor(
-    private url: string,
-    private onmessage: (mesg: Message) => void,
-    private onopen: () => void,
-    private reconnectInterval = 5000
-  ) {
-    this.connect();
-  }
-
-  private connect() {
-    this.socket = new WebSocket(this.url);
-
-    this.socket.onopen = this.onopen.bind(this);
-
-    this.socket.onmessage = (event) => this.onmessage(JSON.parse(event.data));
-    this.socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    this.socket.onclose = () => {
-      console.log("WebSocket closed, attempting to reconnect...");
-      setTimeout(() => this.connect(), this.reconnectInterval);
-    };
-  }
-
-  send(mesg: Message) {
-    if (this.socket?.readyState === WebSocket.OPEN) {
-      this.socket.send(JSON.stringify(mesg));
-    } else {
-      console.warn("WebSocket not open. Message not sent.");
-    }
-  }
-}
+import { Message, WebSocketClient } from "./webSocket";
 
 interface Config<T> {
   name: string;
@@ -63,7 +23,7 @@ interface Plugin {
 class Editor {
   ws: WebSocketClient;
   _plugins: { [name: string]: Plugin } = {};
-  _listeners: Array<() => void> = [];
+  _callbacks: Array<() => void> = [];
   host: string;
 
   set plugins(plugins: Array<Plugin>) {
@@ -76,7 +36,7 @@ class Editor {
       })
       .forEach((p) => (this._plugins[p.name] = p));
 
-    for (const listener of this._listeners) listener();
+    for (const callback of this._callbacks) callback();
   }
 
   get plugins() {
@@ -128,8 +88,8 @@ class Editor {
     }
   }
 
-  listen(listener: () => void) {
-    this._listeners.push(listener);
+  listen(callback: () => void) {
+    this._callbacks.push(callback);
   }
 
   config(plugin: Plugin) {

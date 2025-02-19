@@ -115,7 +115,8 @@ export class App extends Component<{}, State> {
                   {selectedPlugin.description && (
                     <span>{selectedPlugin.description}</span>
                   )}
-                  <h4>Configs: </h4>
+                  <div class="divider" />
+                  <h3>Configs: </h3>
                 </li>
                 {selectedPlugin.configs.map((c) => {
                   const disabled =
