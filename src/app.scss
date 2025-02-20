@@ -57,6 +57,7 @@
 
   &.selected {
     border: 2px var(--color-text) solid;
+    box-shadow: 3px 3px var(--color-text);
     margin: 0;
   }
 }
@@ -118,13 +119,20 @@
     opacity: 0.5;
   }
 
-  &.remove {
+  &:last-child {
     justify-content: center;
-    font-weight: bold;
-    color: var(--color-warning);
-    cursor: pointer;
     margin-top: 0.5rem;
-    font-size: 1rem;
+    gap: 1rem;
+
+    button {
+      flex: 1;
+
+      &:last-child {
+        color: var(--color-warning);
+        border-color: var(--color-warning);
+        box-shadow: 3px 3px var(--color-warning);
+      }
+    }
   }
 
   &.info {

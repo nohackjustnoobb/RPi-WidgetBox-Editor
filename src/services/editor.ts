@@ -1,4 +1,7 @@
-import { Message, WebSocketClient } from "./webSocket";
+import {
+  Message,
+  WebSocketClient,
+} from './webSocket';
 
 interface Config<T> {
   name: string;
@@ -98,6 +101,19 @@ class Editor {
       data: {
         name: plugin.name,
         configs: plugin.configs.map((c) => ({ name: c.name, value: c.value })),
+      },
+    });
+  }
+
+  reset(plugin: Plugin) {
+    this.ws.send({
+      type: "configPlugin",
+      data: {
+        name: plugin.name,
+        configs: plugin.configs.map((c) => ({
+          name: c.name,
+          value: c.default,
+        })),
       },
     });
   }

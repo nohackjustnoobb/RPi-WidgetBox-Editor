@@ -1,14 +1,20 @@
-import "./app.scss";
+import './app.scss';
 
-import { Component, Fragment } from "preact";
+import {
+  Component,
+  Fragment,
+} from 'preact';
 
-import { mdiPlus } from "@mdi/js";
+import { mdiPlus } from '@mdi/js';
 
-import AddPlugin from "./components/addPlugin";
-import Icon from "./components/icon";
-import ScaleWrapper from "./components/scaleWrapper";
-import WebComponents from "./components/webComponents";
-import editor, { Config, Plugin } from "./services/editor";
+import AddPlugin from './components/addPlugin';
+import Icon from './components/icon';
+import ScaleWrapper from './components/scaleWrapper';
+import WebComponents from './components/webComponents';
+import editor, {
+  Config,
+  Plugin,
+} from './services/editor';
 
 const SCALE_CONSTANT = 2500;
 
@@ -147,19 +153,32 @@ export class App extends Component<{}, State> {
                     </li>
                   );
                 })}
-                <li
-                  class="config remove"
-                  onClick={() => {
-                    if (
-                      !confirm("Are you sure you want to remove this plugin?")
-                    )
-                      return;
+                <li class="config">
+                  <button
+                    onClick={() => {
+                      if (
+                        !confirm("Are you sure you want to reset the configs?")
+                      )
+                        return;
 
-                    editor.remove(selected);
-                    this.setState({ selected: undefined });
-                  }}
-                >
-                  Remove Plugin
+                      editor.reset(selectedPlugin);
+                    }}
+                  >
+                    Reset Configs
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (
+                        !confirm("Are you sure you want to remove this plugin?")
+                      )
+                        return;
+
+                      editor.remove(selected);
+                      this.setState({ selected: undefined });
+                    }}
+                  >
+                    Remove Plugin
+                  </button>
                 </li>
               </>
             ) : (
