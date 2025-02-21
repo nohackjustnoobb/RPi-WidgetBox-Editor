@@ -3,11 +3,18 @@ import {
   WebSocketClient,
 } from './webSocket';
 
-interface Config<T> {
+interface Option<T> {
+  name: string;
+  value?: T;
+}
+
+interface Config<T1, T2> {
   name: string;
   type: string;
-  value: T;
-  default: T;
+  value: T1;
+  default: T1;
+  hint?: string;
+  options?: Array<Option<T2>>;
 }
 
 interface Plugin {
@@ -16,7 +23,7 @@ interface Plugin {
   enabled: boolean;
   description?: string;
   url?: string;
-  configs: Array<Config<any>>;
+  configs: Array<Config<any, any>>;
   script: {
     url?: string;
     inline?: string;

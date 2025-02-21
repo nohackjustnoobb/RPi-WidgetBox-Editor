@@ -8,13 +8,12 @@ import {
 import { mdiPlus } from '@mdi/js';
 
 import AddPlugin from './components/addPlugin';
+import Config from './components/config';
 import Icon from './components/icon';
 import ScaleWrapper from './components/scaleWrapper';
 import WebComponents from './components/webComponents';
-import editor, {
-  Config,
-  Plugin,
-} from './services/editor';
+import editor, { Config as ConfigValue } from './services/editor';
+import { formatName } from './services/utils';
 
 const SCALE_CONSTANT = 2500;
 
@@ -35,14 +34,11 @@ export class App extends Component<{}, State> {
     window.addEventListener("resize", () => this.forceUpdate());
   }
 
-  formatName(name: string): string {
-    return name
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (char) => char.toUpperCase());
-  }
-
-  onInput(value: string, c: Config<any>, selectedPlugin: Plugin): void {
+  onInput(value: string, c: ConfigValue<any, any>): void {
     let parsed: any = value;
+    const selectedPlugin =
+      this.state.selected && editor.get(this.state.selected);
+    if (!selectedPlugin) return;
 
     switch (typeof c.default) {
       case "boolean":
@@ -86,7 +82,7 @@ export class App extends Component<{}, State> {
               }`}
               onClick={() => this.setState({ selected: p.name })}
             >
-              <span class="name">{this.formatName(p.name)}</span>
+              <span class="name">{formatName(p.name)}</span>
             </li>
           ))}
         </ul>
@@ -115,7 +111,7 @@ export class App extends Component<{}, State> {
               <>
                 <li class={"config info"}>
                   <h2>
-                    {this.formatName(selectedPlugin.name)}{" "}
+                    {formatName(selectedPlugin.name)}{" "}
                     <span>v{selectedPlugin.version}</span>
                   </h2>
                   {selectedPlugin.description && (
@@ -124,35 +120,13 @@ export class App extends Component<{}, State> {
                   <div class="divider" />
                   <h3>Configs: </h3>
                 </li>
-                {selectedPlugin.configs.map((c) => {
-                  const disabled =
-                    !selectedPlugin.enabled && c.name !== "enabled";
-
-                  return (
-                    <li class={`config ${disabled && "disabled"}`}>
-                      <span class="name">{this.formatName(c.name)}</span>
-                      <input
-                        type={c.type}
-                        value={c.value}
-                        defaultValue={c.value}
-                        defaultChecked={c.value}
-                        disabled={disabled}
-                        onClick={() => {
-                          if (c.type === "checkbox")
-                            this.onInput(String(!c.value), c, selectedPlugin);
-                        }}
-                        onInput={(e) => {
-                          if (c.type !== "checkbox")
-                            this.onInput(
-                              (e.target as HTMLInputElement).value,
-                              c,
-                              selectedPlugin
-                            );
-                        }}
-                      />
-                    </li>
-                  );
-                })}
+                {selectedPlugin.configs.map((c) => (
+                  <Config
+                    disabled={!selectedPlugin.enabled && c.name !== "enabled"}
+                    onInput={this.onInput.bind(this)}
+                    config={c}
+                  />
+                ))}
                 <li class="config">
                   <button
                     onClick={() => {
