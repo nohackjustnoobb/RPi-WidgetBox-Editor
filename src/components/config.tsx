@@ -21,6 +21,7 @@ export default class Config extends Component<Props> {
             onChange={(e) =>
               onInput((e.target as HTMLSelectElement).value, config)
             }
+            disabled={disabled}
             value={config.value}
           >
             {options.map((o) => (
@@ -36,6 +37,7 @@ export default class Config extends Component<Props> {
           <input
             type={config.type}
             value={config.value}
+            checked={config.value}
             defaultValue={config.value}
             defaultChecked={config.value}
             disabled={disabled}

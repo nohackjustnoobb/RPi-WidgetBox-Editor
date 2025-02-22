@@ -30,9 +30,10 @@ html[data-theme="dark"] {
   --color-warning: #cc3300;
 }
 
-input[type="text"],
+input:not([type="checkbox"]),
 textarea,
-button {
+button,
+select {
   border: 2px var(--color-border) solid;
   box-shadow: 3px 3px var(--color-border);
   border-radius: 0.5rem;
