@@ -1,11 +1,11 @@
-import {
-  Component,
-  createElement,
-} from 'preact';
+import { Component, createElement } from "preact";
+
+import { sleep } from "../services/utils";
 
 interface Props {
   tag: string;
   src: string;
+  insertFunctions?: { [key: string]: any };
   [attr: string]: any;
 }
 
@@ -25,8 +25,23 @@ export default class WebComponents extends Component<Props> {
     this.loaded.push(src);
   }
 
-  render({ tag, src, ...props }: Props) {
+  async insertFunctions() {
+    if (!this.props.insertFunctions) return;
+
+    let element: any = document.querySelector(this.props.tag);
+    while (!element) {
+      await sleep(250);
+      element = document.querySelector(this.props.tag);
+    }
+
+    for (const [key, value] of Object.entries(this.props.insertFunctions)) {
+      if (!element[key]) element[key] = value;
+    }
+  }
+
+  render({ tag, src, insertFunctions, ...props }: Props) {
     this.loadScript(src);
+    this.insertFunctions();
 
     return createElement(tag, props);
   }

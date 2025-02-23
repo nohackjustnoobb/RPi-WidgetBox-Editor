@@ -1,19 +1,16 @@
-import './app.scss';
+import "./app.scss";
 
-import {
-  Component,
-  Fragment,
-} from 'preact';
+import { Component, Fragment } from "preact";
 
-import { mdiPlus } from '@mdi/js';
+import { mdiPlus } from "@mdi/js";
 
-import AddPlugin from './components/addPlugin';
-import Config from './components/config';
-import Icon from './components/icon';
-import ScaleWrapper from './components/scaleWrapper';
-import WebComponents from './components/webComponents';
-import editor, { Config as ConfigValue } from './services/editor';
-import { formatName } from './services/utils';
+import AddPlugin from "./components/addPlugin";
+import Config from "./components/config";
+import Icon from "./components/icon";
+import ScaleWrapper from "./components/scaleWrapper";
+import WebComponents from "./components/webComponents";
+import editor, { Config as ConfigValue, Message } from "./services/editor";
+import { formatName } from "./services/utils";
 
 const SCALE_CONSTANT = 2500;
 
@@ -30,7 +27,7 @@ export class App extends Component<{}, State> {
   constructor() {
     super();
 
-    editor.listen(this.forceUpdate.bind(this));
+    editor.subscribe(this.forceUpdate.bind(this));
     window.addEventListener("resize", () => this.forceUpdate());
   }
 
@@ -80,7 +77,11 @@ export class App extends Component<{}, State> {
               class={`plugin ${!p.enabled && "disabled"} ${
                 selected === p.name && "selected"
               }`}
-              onClick={() => this.setState({ selected: p.name })}
+              onClick={() => {
+                if (selected) delete editor.messageCallback[selected];
+
+                this.setState({ selected: p.name });
+              }}
             >
               <span class="name">{formatName(p.name)}</span>
             </li>
@@ -94,6 +95,22 @@ export class App extends Component<{}, State> {
                   <WebComponents
                     tag={selected}
                     src={selectedPlugin.script.url!}
+                    {...(selectedPlugin?.backgroundScript?.url
+                      ? {
+                          insertFunctions: {
+                            send: (mesg: Message) =>
+                              editor.ws.send({
+                                type: "pluginMessage",
+                                data: {
+                                  name: selectedPlugin.name,
+                                  mesg,
+                                },
+                              }),
+                            subscribe: (callback: (mesg: Message) => void) =>
+                              (editor.messageCallback[selected] = callback),
+                          },
+                        }
+                      : {})}
                     {...Object.fromEntries(
                       selectedPlugin.configs.map((c) => [c.name, c.value])
                     )}
@@ -148,6 +165,8 @@ export class App extends Component<{}, State> {
                         return;
 
                       editor.remove(selected);
+                      delete editor.messageCallback[selected];
+
                       this.setState({ selected: undefined });
                     }}
                   >

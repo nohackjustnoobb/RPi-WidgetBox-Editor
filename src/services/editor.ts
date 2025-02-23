@@ -1,7 +1,4 @@
-import {
-  Message,
-  WebSocketClient,
-} from './webSocket';
+import { Message, WebSocketClient } from "./webSocket";
 
 interface Option<T> {
   name: string;
@@ -17,6 +14,19 @@ interface Config<T1, T2> {
   options?: Array<Option<T2>>;
 }
 
+interface Script {
+  url?: string;
+  inline?: string;
+}
+
+interface BackgroundProcess {
+  start: (
+    send: (mesg: Message) => void,
+    subscribe: (callback: (mesg: Message) => void) => void
+  ) => void;
+  stop: () => void;
+}
+
 interface Plugin {
   name: string;
   version: string;
@@ -24,16 +34,18 @@ interface Plugin {
   description?: string;
   url?: string;
   configs: Array<Config<any, any>>;
-  script: {
-    url?: string;
-    inline?: string;
-  };
+  backgroundScript?: Script;
+  script: Script;
+  backgroundProcess?: BackgroundProcess;
 }
 
 class Editor {
   ws: WebSocketClient;
   _plugins: { [name: string]: Plugin } = {};
-  _callbacks: Array<() => void> = [];
+
+  changeCallback: Array<() => void> = [];
+  backgroundMessageCallback: { [name: string]: (mesg: Message) => void } = {};
+  messageCallback: { [name: string]: (mesg: Message) => void } = {};
   host: string;
 
   set plugins(plugins: Array<Plugin>) {
@@ -42,15 +54,48 @@ class Editor {
       .map((p) => {
         p.enabled = p.configs.find((c) => c.name == "enabled")!.value;
         p.script.url = "http://" + this.host + p.script.url;
+
+        if (p.backgroundScript)
+          p.backgroundScript.url =
+            "http://" + this.host + p.backgroundScript.url;
+
         return p;
       })
-      .forEach((p) => (this._plugins[p.name] = p));
+      .forEach((p) => {
+        if (this._plugins[p.name] && this._plugins[p.name].backgroundProcess)
+          this._plugins[p.name].backgroundProcess!.stop();
 
-    for (const callback of this._callbacks) callback();
+        this._plugins[p.name] = p;
+
+        if (p.enabled && p.backgroundScript?.url)
+          this.initializePluginBackgrounProcess(p);
+      });
+
+    for (const callback of this.changeCallback) callback();
   }
 
   get plugins() {
     return Object.values(this._plugins);
+  }
+
+  async initializePluginBackgrounProcess(plugin: Plugin) {
+    if (!plugin.backgroundScript?.url) return;
+
+    plugin.backgroundProcess = (
+      await import(/* @vite-ignore */ plugin.backgroundScript.url)
+    ).default;
+
+    plugin.backgroundProcess!.start(
+      (mesg) =>
+        this.ws.send({
+          type: "pluginMessage",
+          data: {
+            name: plugin.name,
+            mesg,
+          },
+        }),
+      (callback) => (this.backgroundMessageCallback[plugin.name] = callback)
+    );
   }
 
   get(name: string) {
@@ -86,11 +131,18 @@ class Editor {
         let name = mesg.data.name as string;
         this.plugins = this.plugins.filter((p) => p.name !== name);
         break;
+      case "pluginMessage":
+        let name2 = mesg.data.name as string;
+
+        if (this.backgroundMessageCallback[name2])
+          this.backgroundMessageCallback[name2](mesg.data.mesg);
+
+        if (this.messageCallback[name2])
+          this.messageCallback[name2](mesg.data.mesg);
+
+        break;
       case "error":
         console.error("Error:", mesg.data);
-        break;
-      // IGNORE
-      case "broadcast":
         break;
       default:
         console.warn("Unknown plugin type:", mesg.type);
@@ -98,8 +150,8 @@ class Editor {
     }
   }
 
-  listen(callback: () => void) {
-    this._callbacks.push(callback);
+  subscribe(callback: () => void) {
+    this.changeCallback.push(callback);
   }
 
   config(plugin: Plugin) {

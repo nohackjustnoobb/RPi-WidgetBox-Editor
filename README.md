@@ -33,3 +33,4 @@ By default, the development server runs on port 5173 and connects to the current
 
 - [ ] Configurable editor settings
 - [ ] Compatibility with Tauri (using embedded functions)
+- [ ] PWA support
