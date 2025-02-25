@@ -26,7 +26,7 @@ yarn dev
 
 By default, the development server runs on port 5173 and connects to the current path via WebSocket.
 
-- To specify a different WebSocket URL, append ?url={other-host-address} to the URL in your browser.
+- To specify a different WebSocket host, append ?host={other-host-address} to the URL in your browser.
 - Only include the host address—do not add the protocol (e.g., example.com, not http://example.com).
 
 ## Roadmap to v1.0.0

@@ -1,4 +1,7 @@
-import { Message, WebSocketClient } from "./webSocket";
+import {
+  Message,
+  WebSocketClient,
+} from './webSocket';
 
 interface Option<T> {
   name: string;
@@ -102,9 +105,22 @@ class Editor {
     return this._plugins[name];
   }
 
+  setHost(host: string) {
+    this.host = host;
+
+    this.ws.url = `ws://${this.host}`;
+    this.ws.close();
+    this.ws.connect();
+
+    localStorage.setItem("host", host);
+  }
+
   constructor() {
     const searchParams = new URLSearchParams(window.location.search);
-    this.host = searchParams.get("url") || window.location.host;
+    this.host =
+      searchParams.get("host") ||
+      localStorage.getItem("host") ||
+      window.location.host;
 
     this.ws = new WebSocketClient(
       `ws://${this.host}`,

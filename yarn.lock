@@ -878,6 +878,11 @@ postcss@^8.5.1:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
+preact-transitioning@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.npmjs.org/preact-transitioning/-/preact-transitioning-1.5.2.tgz#5e4cdada2b72c3890ea27d499ab598830edb8eac"
+  integrity sha512-J/Vt+rZlbsC9oUEGETPxaMlcrSsnO1EeQ895dNiiueXZpf3vPE0k3ev/ZHmB3+Bxe7o9seiT4Q4CIrpil4mKkw==
+
 preact@^10.25.4:
   version "10.26.0"
   resolved "https://registry.npmjs.org/preact/-/preact-10.26.0.tgz"

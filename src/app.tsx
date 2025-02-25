@@ -1,27 +1,39 @@
-import "./app.scss";
+import './app.scss';
 
-import { Component, Fragment } from "preact";
+import {
+  Component,
+  Fragment,
+} from 'preact';
 
-import { mdiPlus } from "@mdi/js";
+import {
+  mdiCog,
+  mdiPlus,
+} from '@mdi/js';
 
-import AddPlugin from "./components/addPlugin";
-import Config from "./components/config";
-import Icon from "./components/icon";
-import ScaleWrapper from "./components/scaleWrapper";
-import WebComponents from "./components/webComponents";
-import editor, { Config as ConfigValue, Message } from "./services/editor";
-import { formatName } from "./services/utils";
+import AddPlugin from './components/addPlugin/addPlugin';
+import Config from './components/config';
+import Icon from './components/icon';
+import ScaleWrapper from './components/scaleWrapper';
+import Settings from './components/settings/settings';
+import WebComponents from './components/webComponents';
+import editor, {
+  Config as ConfigValue,
+  Message,
+} from './services/editor';
+import { formatName } from './services/utils';
 
 const SCALE_CONSTANT = 2500;
 
 interface State {
   selected?: string;
   showAddPlugin: boolean;
+  showSettings: boolean;
 }
 
 export class App extends Component<{}, State> {
   state: State = {
     showAddPlugin: false,
+    showSettings: false,
   };
 
   constructor() {
@@ -55,7 +67,7 @@ export class App extends Component<{}, State> {
     editor.config(selectedPlugin);
   }
 
-  render({}, { selected, showAddPlugin }: State) {
+  render({}, { selected, showAddPlugin, showSettings }: State) {
     const selectedPlugin = selected && editor.get(selected);
 
     return (
@@ -64,7 +76,17 @@ export class App extends Component<{}, State> {
           show={showAddPlugin}
           close={() => this.setState({ showAddPlugin: false })}
         />
+        <Settings
+          show={showSettings}
+          close={() => this.setState({ showSettings: false })}
+        />
         <ul class="plugins">
+          <li
+            class="plugin"
+            onClick={() => this.setState({ showSettings: true })}
+          >
+            <Icon path={mdiCog} />
+          </li>
           <li
             class="plugin"
             onClick={() => this.setState({ showAddPlugin: true })}
