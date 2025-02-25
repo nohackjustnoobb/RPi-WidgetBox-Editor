@@ -14,4 +14,8 @@ function formatName(name: string): string {
 const sleep = async (duration: number): Promise<void> =>
   new Promise((res) => setTimeout(res, duration));
 
-export { formatName, sleep, updateTheme };
+function isRunningInTauri() {
+  return "__TAURI_INTERNALS__" in window;
+}
+
+export { formatName, isRunningInTauri, sleep, updateTheme };
