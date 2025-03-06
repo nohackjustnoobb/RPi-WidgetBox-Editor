@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
-    "@tauri-apps/api": "^2.2.0",
     "preact": "^10.25.4",
     "preact-transitioning": "^1.5.2"
   },
