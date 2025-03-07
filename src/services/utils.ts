@@ -22,7 +22,7 @@ function isRunningInTauri() {
 
 async function confirm(message: string): Promise<boolean> {
   return isRunningInTauri()
-    ? await tauriConfirm("This action cannot be reverted. Are you sure?", {
+    ? await tauriConfirm(message, {
         title: "Confirmation",
         kind: "warning",
       })
