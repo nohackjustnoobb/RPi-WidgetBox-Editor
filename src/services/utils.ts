@@ -22,7 +22,8 @@ function isRunningInTauri() {
 
 async function confirm(message: string): Promise<boolean> {
   return isRunningInTauri()
-    ? await tauriConfirm(message, {
+    ? // TODO better icon
+      await tauriConfirm(message, {
         title: "Confirmation",
         kind: "warning",
       })

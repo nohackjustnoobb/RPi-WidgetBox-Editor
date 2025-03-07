@@ -197,6 +197,8 @@ class Editor {
       type: "removePlugin",
       data: { name },
     });
+
+    if (this._plugins[name]) this._plugins[name].backgroundProcess?.stop();
   }
 
   add(plugin: string, meta: boolean = false) {
