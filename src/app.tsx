@@ -1,29 +1,17 @@
-import './app.scss';
+import "./app.scss";
 
-import {
-  Component,
-  Fragment,
-} from 'preact';
+import { Component, Fragment } from "preact";
 
-import {
-  mdiCog,
-  mdiPlus,
-} from '@mdi/js';
+import { mdiCog, mdiPlus } from "@mdi/js";
 
-import AddPlugin from './components/addPlugin/addPlugin';
-import Config from './components/config';
-import Icon from './components/icon';
-import ScaleWrapper from './components/scaleWrapper';
-import Settings from './components/settings/settings';
-import WebComponents from './components/webComponents';
-import editor, {
-  Config as ConfigValue,
-  Message,
-} from './services/editor';
-import {
-  formatName,
-  isRunningInTauri,
-} from './services/utils';
+import AddPlugin from "./components/addPlugin/addPlugin";
+import Config from "./components/config";
+import Icon from "./components/icon";
+import ScaleWrapper from "./components/scaleWrapper";
+import Settings from "./components/settings/settings";
+import WebComponents from "./components/webComponents";
+import editor, { Config as ConfigValue, Message } from "./services/editor";
+import { confirm, formatName, isRunningInTauri } from "./services/utils";
 
 const SCALE_CONSTANT = 2500;
 
@@ -175,9 +163,11 @@ export class App extends Component<{}, State> {
                 ))}
                 <li class="config">
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (
-                        !confirm("Are you sure you want to reset the configs?")
+                        !(await confirm(
+                          "Are you sure you want to reset the configs?"
+                        ))
                       )
                         return;
 
@@ -187,9 +177,11 @@ export class App extends Component<{}, State> {
                     Reset Configs
                   </button>
                   <button
-                    onClick={() => {
+                    onClick={async () => {
                       if (
-                        !confirm("Are you sure you want to remove this plugin?")
+                        !(await confirm(
+                          "Are you sure you want to remove this plugin?"
+                        ))
                       )
                         return;
 

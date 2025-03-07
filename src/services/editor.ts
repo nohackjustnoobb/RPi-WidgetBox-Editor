@@ -1,7 +1,4 @@
-import {
-  Message,
-  WebSocketClient,
-} from './webSocket';
+import { Message, WebSocketClient } from "./webSocket";
 
 interface Option<T> {
   name: string;
@@ -55,6 +52,8 @@ class Editor {
     this._plugins = {};
     plugins
       .map((p) => {
+        if (p.enabled !== undefined) return p;
+
         p.enabled = p.configs.find((c) => c.name == "enabled")!.value;
         p.script.url = "http://" + this.host + p.script.url;
 
