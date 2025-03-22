@@ -4,7 +4,7 @@
     margin: 0;
   }
 
-  input {
+  input[type="text"] {
     margin: 0;
     min-width: 10rem;
   }
@@ -14,20 +14,16 @@
     align-items: center;
     gap: 0.5rem;
     flex-shrink: 0;
+    width: 100%;
+
+    button {
+      flex: 1;
+    }
 
     &:last-child {
       width: 100%;
       max-width: 20rem;
       gap: 1rem;
-      button {
-        flex: 1;
-
-        &:first-child {
-          color: var(--color-warning);
-          border-color: var(--color-warning);
-          box-shadow: 3px 3px var(--color-warning);
-        }
-      }
     }
   }
 }

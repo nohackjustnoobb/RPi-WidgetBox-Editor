@@ -49,6 +49,12 @@ button {
   cursor: pointer;
 }
 
+button.danger {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+  box-shadow: 3px 3px var(--color-warning);
+}
+
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

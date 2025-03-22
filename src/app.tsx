@@ -177,6 +177,7 @@ export class App extends Component<{}, State> {
                     Reset Configs
                   </button>
                   <button
+                    className="danger"
                     onClick={async () => {
                       if (
                         !(await confirm(

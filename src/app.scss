@@ -152,12 +152,6 @@
 
     button {
       flex: 1;
-
-      &:last-child {
-        color: var(--color-warning);
-        border-color: var(--color-warning);
-        box-shadow: 3px 3px var(--color-warning);
-      }
     }
   }
 

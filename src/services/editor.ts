@@ -42,6 +42,7 @@ interface Plugin {
 class Editor {
   ws: WebSocketClient;
   _plugins: { [name: string]: Plugin } = {};
+  _style: string | null = null;
 
   changeCallback: Array<() => void> = [];
   backgroundMessageCallback: { [name: string]: (mesg: Message) => void } = {};
@@ -73,11 +74,39 @@ class Editor {
           this.initializePluginBackgrounProcess(p);
       });
 
-    for (const callback of this.changeCallback) callback();
+    this.notify();
   }
 
   get plugins() {
     return Object.values(this._plugins);
+  }
+
+  set style(style: string | null) {
+    // Remove existing style link if present
+    const existingLink = document.querySelector("link[data-custom-style]");
+    if (existingLink) existingLink.remove();
+
+    if (!style) {
+      this._style = null;
+
+      this.notify();
+      return;
+    }
+
+    this._style = "http://" + this.host + style;
+
+    // Create and append new style link
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = this._style;
+    link.setAttribute("data-custom-style", "");
+    document.head.appendChild(link);
+
+    this.notify();
+  }
+
+  get style() {
+    return this._style;
   }
 
   async initializePluginBackgrounProcess(plugin: Plugin) {
@@ -128,8 +157,16 @@ class Editor {
         this.ws.send({
           type: "listPlugins",
         });
+
+        this.ws.send({
+          type: "getStyle",
+        });
       }
     );
+  }
+
+  notify() {
+    for (const callback of this.changeCallback) callback();
   }
 
   handler(mesg: Message) {
@@ -144,7 +181,11 @@ class Editor {
         break;
       case "removePlugin":
         let name = mesg.data.name as string;
-        this.plugins = this.plugins.filter((p) => p.name !== name);
+        if (this._plugins[name]) {
+          this._plugins[name].backgroundProcess?.stop();
+          delete this._plugins[name];
+          this.notify();
+        }
         break;
       case "pluginMessage":
         let name2 = mesg.data.name as string;
@@ -155,6 +196,13 @@ class Editor {
         if (this.messageCallback[name2])
           this.messageCallback[name2](mesg.data.mesg);
 
+        break;
+      case "setStyle":
+      case "getStyle":
+        this.style = mesg.data.url || null;
+        break;
+      case "removeStyle":
+        this.style = null;
         break;
       case "error":
         console.error("Error:", mesg.data);
@@ -167,6 +215,9 @@ class Editor {
 
   subscribe(callback: () => void) {
     this.changeCallback.push(callback);
+
+    return () =>
+      (this.changeCallback = this.changeCallback.filter((c) => c !== callback));
   }
 
   config(plugin: Plugin) {
@@ -197,15 +248,24 @@ class Editor {
       type: "removePlugin",
       data: { name },
     });
-
-    if (this._plugins[name]) this._plugins[name].backgroundProcess?.stop();
   }
 
-  add(plugin: string, meta: boolean = false) {
+  add(plugin: string, meta: boolean) {
     this.ws.send({
       type: "addPlugin",
       data: meta ? { meta: JSON.parse(plugin) } : { url: plugin },
     });
+  }
+
+  setStyle(style: string, isUrl: boolean) {
+    this.ws.send({
+      type: "setStyle",
+      data: isUrl ? { url: style } : { inline: style },
+    });
+  }
+
+  removeStyle() {
+    this.ws.send({ type: "removeStyle" });
   }
 }
 
